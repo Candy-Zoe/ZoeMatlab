@@ -99,4 +99,122 @@ figure('Name', '自定义拟合', 'Position', [100, 100, 600, 400]);
 plot(f_custom, x_custom, y_custom);
 title(sprintf('自定义拟合: %s', formula(f_custom)));
 
-disp('=== 脚本执行完毕 ===');
+%% 6. 样条插值与拟合
+fprintf('\n--- 样条拟合 ---\n');
+
+% 自然三次样条
+x_sp = [0, 1, 2, 3, 4, 5]';
+y_sp = [0, 1.5, 2.0, 1.8, 2.5, 3.0]';
+
+% 三次样条插值 (通过所有点)
+pp = spline(x_sp, y_sp);
+x_fine = linspace(0, 5, 200)';
+y_spline = ppval(pp, x_fine);
+
+% 平滑样条 (csaps, 不通过所有点)
+try
+    pp_smooth = csaps(x_sp, y_sp + 0.2*randn(size(y_sp)), 0.9);
+    y_smooth = fnval(pp_smooth, x_fine);
+    has_csaps = true;
+catch
+    has_csaps = false;
+end
+
+figure('Name', '样条拟合', 'Position', [100, 100, 800, 400]);
+subplot(1,2,1);
+scatter(x_sp, y_sp, 80, 'r', 'filled', 'DisplayName', '原始数据'); hold on;
+plot(x_fine, y_spline, 'b-', 'LineWidth', 2, 'DisplayName', '三次样条');
+if has_csaps
+    plot(x_fine, y_smooth, 'g--', 'LineWidth', 2, 'DisplayName', '平滑样条');
+end
+xlabel('x'); ylabel('y');
+title('样条插值与拟合');
+legend('Location', 'best');
+grid on;
+
+% pchip (保形分段三次插值)
+subplot(1,2,2);
+y_pchip = pchip(x_sp, y_sp, x_fine);
+scatter(x_sp, y_sp, 80, 'r', 'filled'); hold on;
+plot(x_fine, y_spline, 'b-', 'LineWidth', 2); 
+plot(x_fine, y_pchip, 'm--', 'LineWidth', 2);
+xlabel('x'); ylabel('y');
+title('spline vs pchip');
+legend('数据', 'spline', 'pchip', 'Location', 'best');
+grid on;
+
+%% 7. 残差分析与模型选择
+fprintf('\n--- 残差分析 ---\n');
+
+% 用之前的二阶拟合数据
+residuals = y - y_pred;
+
+figure('Name', '残差分析', 'Position', [100, 100, 1000, 400]);
+subplot(1,3,1);
+scatter(y_pred, residuals, 20, 'filled');
+hold on;
+yline(0, 'r-', 'LineWidth', 2);
+xlabel('预测值'); ylabel('残差');
+title('残差 vs 预测值');
+grid on;
+
+% QQ图
+subplot(1,3,2);
+qqplot(residuals);
+title('残差QQ图 (正态性检验)');
+
+% 残差直方图
+subplot(1,3,3);
+histogram(residuals, 15, 'Normalization', 'pdf');
+hold on;
+x_r = linspace(min(residuals), max(residuals), 100);
+plot(x_r, normpdf(x_r, mean(residuals), std(residuals)), 'r-', 'LineWidth', 2);
+xlabel('残差'); ylabel('概率密度');
+title('残差分布');
+legend('直方图', '正态拟合');
+
+%% 8. 过拟合与交叉验证概念
+fprintf('\n--- 过拟合与交叉验证 ---\n');
+
+% 不同阶数的训练误差 vs 测试误差
+rng(42);
+x_all = linspace(0, 10, 100)';
+y_all = 2*x_all.^2 - 3*x_all + 5 + randn(100,1)*3;
+
+% 分割训练/测试
+train_idx = 1:70;
+test_idx = 71:100;
+
+train_errors = zeros(1, 6);
+test_errors = zeros(1, 6);
+
+for deg = 1:6
+    p_deg = polyfit(x_all(train_idx), y_all(train_idx), deg);
+    y_train_pred = polyval(p_deg, x_all(train_idx));
+    y_test_pred = polyval(p_deg, x_all(test_idx));
+    train_errors(deg) = sqrt(mean((y_all(train_idx) - y_train_pred).^2));
+    test_errors(deg) = sqrt(mean((y_all(test_idx) - y_test_pred).^2));
+end
+
+figure('Name', '过拟合分析');
+plot(1:6, train_errors, 'bo-', 'LineWidth', 2, 'MarkerSize', 8); hold on;
+plot(1:6, test_errors, 'rs-', 'LineWidth', 2, 'MarkerSize', 8);
+xline(2, 'k--', '真实阶数=2');
+xlabel('多项式阶数'); ylabel('RMSE');
+title('训练误差 vs 测试误差 (过拟合分析)');
+legend('训练集', '测试集', 'Location', 'best');
+grid on;
+
+fprintf('阶数  训练RMSE  测试RMSE\n');
+for deg = 1:6
+    fprintf('  %d     %.3f    %.3f\n', deg, train_errors(deg), test_errors(deg));
+end
+fprintf('\n结论: 阶数过高导致过拟合，测试误差上升\n');
+
+%% === 总结 ===
+fprintf('\n=== 曲线拟合总结 ===\n');
+fprintf('1. 多项式拟合: polyfit/polyval, 阶数选择\n');
+fprintf('2. fit函数: gauss1, exp1, 自定义模型\n');
+fprintf('3. 样条拟合: spline, pchip, csaps\n');
+fprintf('4. 残差分析: 残差图、QQ图、正态性检验\n');
+fprintf('5. 过拟合: 训练/测试误差分离, 交叉验证\n');

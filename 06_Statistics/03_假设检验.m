@@ -105,4 +105,86 @@ xlabel('干预后 - 干预前');
 ylabel('频数');
 hold off;
 
-disp('=== 脚本执行完毕 ===');
+%% 7. 非参数检验
+fprintf('\n--- 非参数检验 ---\n');
+
+% Wilcoxon秩和检验 (Mann-Whitney U)
+rng(42);
+sample_a = exprnd(5, 1, 30);   % 指数分布
+sample_b = exprnd(7, 1, 30);
+
+[p_rank, h_rank] = ranksum(sample_a, sample_b);
+fprintf('Wilcoxon秩和检验:\n');
+fprintf('  H0: 两样本来自同一分布\n');
+fprintf('  h = %d, p = %.4f\n', h_rank, p_rank);
+
+% Kruskal-Wallis检验 (多组非参数ANOVA)
+g_a = exprnd(5, 1, 25);
+g_b = exprnd(7, 1, 25);
+g_c = exprnd(6, 1, 25);
+
+[p_kw] = kruskalwallis({g_a, g_b, g_c});
+fprintf('Kruskal-Wallis检验: p = %.4f\n', p_kw);
+
+% Kolmogorov-Smirnov检验 (分布拟合)
+[p_ks, h_ks] = kstest(sample_a, 'CDF', [sample_a', expcdf(sample_a', mean(sample_a))]);
+fprintf('K-S检验 (指数分布拟合): h=%d, p=%.4f\n', h_ks, p_ks);
+
+%% 8. 效应量与统计功效
+fprintf('\n--- 效应量与统计功效 ---\n');
+
+% Cohen's d 效应量
+d_effect = abs(mean(group_B) - mean(group_A)) / sqrt((var(group_A)+var(group_B))/2);
+fprintf('Cohen\'s d = %.3f', d_effect);
+if d_effect < 0.2
+    fprintf(' (微小效应)\n');
+elseif d_effect < 0.5
+    fprintf(' (小效应)\n');
+elseif d_effect < 0.8
+    fprintf(' (中等效应)\n');
+else
+    fprintf(' (大效应)\n');
+end
+
+% 功效分析 (简化版)
+% 对于t检验，给定效应量d、样本量n、显著性水平alpha
+alpha_level = 0.05;
+n_per_group = 30;
+
+% 使用非中心t分布计算功效 (简化近似)
+ncp = d_effect * sqrt(n_per_group/2);  % 非中心参数
+t_crit = tinv(1-alpha_level/2, 2*n_per_group-2);
+power_approx = 1 - tcdf(t_crit, 2*n_per_group-2, ncp);
+
+fprintf('统计功效 (1-β) = %.3f\n', power_approx);
+fprintf('  (给定 d=%.2f, n=%d, α=%.2f)\n', d_effect, n_per_group, alpha_level);
+
+% 样本量与功效曲线
+figure('Name', '功效分析', 'Position', [100, 100, 700, 400]);
+n_range = 5:5:100;
+d_vals = [0.2, 0.5, 0.8, 1.0];
+labels_d = {'d=0.2(小)', 'd=0.5(中)', 'd=0.8(大)', 'd=1.0'};
+
+for i = 1:length(d_vals)
+    power_curve = zeros(size(n_range));
+    for j = 1:length(n_range)
+        ncp_j = d_vals(i) * sqrt(n_range(j)/2);
+        t_c = tinv(1-alpha_level/2, 2*n_range(j)-2);
+        power_curve(j) = 1 - tcdf(t_c, 2*n_range(j)-2, ncp_j);
+    end
+    plot(n_range, power_curve, 'LineWidth', 2, 'DisplayName', labels_d{i}); hold on;
+end
+yline(0.8, 'k--', 'LineWidth', 1.5, 'DisplayName', '功效=0.8');
+xlabel('每组样本量'); ylabel('统计功效 (1-β)');
+title('功效分析: 样本量 vs 功效');
+legend('Location', 'best');
+grid on;
+
+%% === 总结 ===
+fprintf('\n=== 假设检验总结 ===\n');
+fprintf('1. t检验: 单样本、双样本、配对\n');
+fprintf('2. ANOVA: 单因素方差分析\n');
+fprintf('3. 卡方检验: 拟合优度、独立性\n');
+fprintf('4. 非参数: Wilcoxon、Kruskal-Wallis、K-S\n');
+fprintf('5. 效应量: Cohen\'s d 衡量实际意义\n');
+fprintf('6. 功效分析: 确定所需样本量\n');

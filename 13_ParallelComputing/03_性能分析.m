@@ -97,4 +97,110 @@ fprintf('  - 迭代依赖 (递推关系)\n');
 fprintf('  - 小计算量任务 (开销 > 收益)\n');
 fprintf('  - 大量通信的任务\n');
 
-fprintf('\n===== 性能分析模块完成! =====\n');
+%% ===== 4. 向量化技巧 =====
+fprintf('\n===== 4. 向量化 vs 循环 =====\n');
+
+% 比较向量化和循环的速度
+N_vec = 1e6;
+x_vec = rand(N_vec, 1);
+
+% 方法1: 循环
+tic;
+y_loop = zeros(N_vec, 1);
+for i = 1:N_vec
+    y_loop(i) = sin(x_vec(i))^2 + cos(x_vec(i))^2;
+end
+t_loop = toc;
+
+% 方法2: 向量化
+tic;
+y_vec = sin(x_vec).^2 + cos(x_vec).^2;
+t_vec = toc;
+
+% 方法3: 预分配 (已预分配)
+fprintf('循环时间:    %.4f s\n', t_loop);
+fprintf('向量化时间:  %.4f s\n', t_vec);
+fprintf('加速比:      %.1f x\n', t_loop/t_vec);
+
+% 预分配的重要性
+fprintf('\n--- 预分配 vs 动态增长 ---\n');
+N_alloc = 100000;
+
+% 不预分配
+tic;
+A_grow = [];
+for i = 1:N_alloc
+    A_grow(end+1) = i^2;
+end
+t_grow = toc;
+
+% 预分配
+tic;
+A_pre = zeros(N_alloc, 1);
+for i = 1:N_alloc
+    A_pre(i) = i^2;
+end
+t_pre = toc;
+
+fprintf('不预分配: %.4f s\n', t_grow);
+fprintf('预分配:   %.4f s\n', t_pre);
+fprintf('加速比:   %.1f x\n', t_grow/t_pre);
+
+%% ===== 5. MATLAB 性能优化技巧 =====
+fprintf('\n===== 5. 性能优化技巧 =====\n');
+
+fprintf('核心原则:\n');
+fprintf('  1. 预分配数组: zeros(), ones(), NaN()\n');
+fprintf('  2. 向量化: 用数组运算代替循环\n');
+fprintf('  3. 避免全局变量: 用函数参数传递\n');
+fprintf('  4. 使用逻辑索引: A(A>0) 比 find+循环 快\n');
+fprintf('  5. 使用内置函数: sum, cumsum, sort 等已优化\n');
+
+% 逻辑索引 vs find
+x_test = randn(1, 1e6);
+
+tic;
+idx = find(x_test > 2);
+count_find = length(idx);
+t_find = toc;
+
+tic;
+count_logic = sum(x_test > 2);
+t_logic = toc;
+
+fprintf('\n逻辑索引示例:\n');
+fprintf('  find():  %.6f s (找到 %d 个)\n', t_find, count_find);
+fprintf('  sum():   %.6f s (找到 %d 个)\n', t_logic, count_logic);
+
+%% ===== 6. 内存分析 =====
+fprintf('\n===== 6. 内存使用分析 =====\n');
+
+% 不同数据类型的内存占用
+var_sizes = {
+    'double标量', 8;
+    'single标量', 4;
+    'int32标量', 4;
+    'int8标量', 1;
+    'logical标量', 1;
+    'double 1000x1000', 8e6;
+    'single 1000x1000', 4e6;
+    'sparse 1000x1000 (1%非零)', 1000*16+1000*8;
+};
+
+fprintf('%-30s %12s\n', '数据类型', '内存 (bytes)');
+fprintf('%s\n', repmat('-', 1, 45));
+for i = 1:size(var_sizes, 1)
+    fprintf('%-30s %12.0f\n', var_sizes{i,1}, var_sizes{i,2});
+end
+
+% whos查看当前变量
+fprintf('\n当前工作区变量:\n');
+whos;
+
+%% ===== 总结 =====
+fprintf('\n=== 性能分析总结 ===\n');
+fprintf('1. Amdahl定律: 并行加速的理论上限\n');
+fprintf('2. 向量化: 用数组运算替代循环 (10-100x加速)\n');
+fprintf('3. 预分配: 避免数组动态增长 (10x+加速)\n');
+fprintf('4. 内存管理: 选择合适的数据类型\n');
+fprintf('5. 并行适用: 独立计算、大矩阵、参数扫描\n');

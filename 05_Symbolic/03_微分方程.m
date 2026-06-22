@@ -101,4 +101,87 @@ xlabel('x'); ylabel('y');
 grid on;
 hold off;
 
-disp('=== 脚本执行完毕 ===');
+%% 6. 二阶ODE: 阻尼振动
+fprintf('\n--- 阻尼振动 ---\n');
+
+syms y2(x)
+% y'' + 2*zeta*wn*y' + wn^2*y = 0
+wn = 2;  % 固有频率
+zeta_vals = [0.1, 0.5, 1.0, 2.0];  % 不同阻尼比
+labels = {'欠阻尼(ζ=0.1)', '欠阻尼(ζ=0.5)', '临界(ζ=1.0)', '过阻尼(ζ=2.0)'};
+
+figure('Name', '阻尼振动', 'Position', [100, 100, 800, 400]);
+for i = 1:length(zeta_vals)
+    z = zeta_vals(i);
+    eq_damp = diff(y2,x,2) + 2*z*wn*diff(y2,x) + wn^2*y2 == 0;
+    sol_damp = dsolve(eq_damp, y2(0)==1, diff(y2,x)(0)==0);
+    
+    x_vals = 0:0.01:8;
+    y_vals = double(subs(sol_damp, x, x_vals));
+    plot(x_vals, real(y_vals), 'LineWidth', 2, 'DisplayName', labels{i}); hold on;
+end
+xlabel('时间 t'); ylabel('位移 y');
+title('不同阻尼比下的振动响应');
+legend('Location', 'best');
+grid on;
+
+%% 7. 非线性 ODE: 逻辑斯谛方程
+fprintf('\n--- 非线性 ODE ---\n');
+
+syms P(t)
+% dP/dt = r*P*(1-P/K)
+r = 0.5;  K_pop = 100;
+eq_logistic = diff(P,t) == r*P*(1-P/K_pop);
+sol_logistic = dsolve(eq_logistic, P(0)==10);
+fprintf('逻辑斯谛方程解: %s\n', char(simplify(sol_logistic)));
+
+t_vals = 0:0.1:30;
+P_vals = double(subs(sol_logistic, t, t_vals));
+
+figure('Name', '逻辑斯谛增长', 'Position', [100, 100, 700, 400]);
+plot(t_vals, P_vals, 'b-', 'LineWidth', 2); hold on;
+yline(K_pop, 'r--', 'LineWidth', 2, 'DisplayName', sprintf('K=%d', K_pop));
+yline(K_pop/2, 'g:', 'LineWidth', 1.5, 'DisplayName', '拐点 K/2');
+xlabel('时间'); ylabel('种群数量');
+title('逻辑斯谛增长模型');
+legend('种群数量', 'Location', 'best');
+grid on;
+
+%% 8. 符号解 vs 数值解比较
+fprintf('\n--- 符号解 vs 数值解 ---\n');
+
+% 符号解
+syms y3(x)
+eq_comp = diff(y3,x) == -y3 + x;
+sol_sym = dsolve(eq_comp, y3(0)==1);
+fprintf('符号解: y = %s\n', char(sol_sym));
+
+% 数值解 (ode45)
+f_ode = @(x,y) -y + x;
+[x_num, y_num] = ode45(f_ode, [0 5], 1);
+
+% 符号解求值
+x_comp = 0:0.1:5;
+y_sym_vals = double(subs(sol_sym, x, x_comp));
+
+figure('Name', '符号解vs数值解');
+plot(x_comp, y_sym_vals, 'b-', 'LineWidth', 3); hold on;
+plot(x_num, y_num, 'ro', 'MarkerSize', 4);
+xlabel('x'); ylabel('y');
+title('符号解与数值解比较');
+legend('符号解 (dsolve)', '数值解 (ode45)');
+grid on;
+
+% 误差
+y_sym_at_nodes = double(subs(sol_sym, x, x_num));
+max_err = max(abs(y_num - y_sym_at_nodes));
+fprintf('最大误差: %.2e\n', max_err);
+
+%% === 总结 ===
+fprintf('\n=== 微分方程总结 ===\n');
+fprintf('1. 一阶ODE: dsolve求解, 通解与特解\n');
+fprintf('2. 二阶ODE: 简谐振动、阻尼振动、受迫振动\n');
+fprintf('3. 方程组: 多变量微分方程组求解\n');
+fprintf('4. 可视化: 解族、向量场、相平面\n');
+fprintf('5. 非线性: 逻辑斯谛方程等\n');
+fprintf('6. 符号vs数值: dsolve + ode45互补使用\n');

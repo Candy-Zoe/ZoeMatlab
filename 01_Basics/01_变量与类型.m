@@ -93,4 +93,102 @@ big_num = 1e10;
 small_int = int8(big_num);              % 溢出，结果为 127（int8 最大值）
 fprintf('int8(1e10) = %d （溢出！）\n', small_int);
 
-disp('=== 脚本执行完毕 ===');
+%% 7. datetime 与 duration 类型
+disp('--- datetime 与 duration ---');
+
+% datetime: 日期时间类型
+dt1 = datetime(2024, 6, 15, 10, 30, 0);  % 2024年6月15日 10:30
+dt2 = datetime('today');                   % 今天
+dt3 = datetime('now');                     % 当前时间
+fprintf('指定时间: %s\n', string(dt1));
+fprintf('今天: %s\n', string(dt2));
+fprintf('现在: %s\n', string(dt3));
+
+% datetime 运算
+dt_later = dt1 + hours(5) + minutes(30);
+fprintf('5小时30分后: %s\n', string(dt_later));
+dt_diff = dt_later - dt1;
+fprintf('时间差: %s (类型: %s)\n', string(dt_diff), class(dt_diff));
+
+% duration 类型
+dur1 = duration(1, 30, 0);   % 1小时30分
+dur2 = seconds(90);
+fprintf('dur1 = %s, dur2 = %s\n', string(dur1), string(dur2));
+fprintf('dur1 + dur2 = %s\n', string(dur1 + dur2));
+
+% 时间序列
+fprintf('\n--- 时间序列创建 ---');
+t_vec = datetime(2024,1,1) + caldays(0:6);
+fprintf('一周日期:\n');
+for i = 1:length(t_vec)
+    fprintf('  %s (%s)\n', string(t_vec(i)), string(t_vec(i), 'eeee'));
+end
+
+%% 8. table 类型（表格数据）
+disp('--- table 表格 ---');
+
+% 创建表格
+names = {'张三'; '李四'; '王五'; '赵六'};
+ages = [25; 30; 28; 35];
+scores = [85.5; 92.0; 78.3; 88.7];
+grades = categorical({'B'; 'A'; 'C'; 'B'});
+
+T = table(names, ages, scores, grades, ...
+    'VariableNames', {'姓名', '年龄', '成绩', '等级'});
+disp(T);
+
+% 表格索引
+fprintf('第2行: %s, 成绩=%.1f\n', T{2,1}, T{2,3});
+fprintf('所有人成绩:\n'); disp(T.成绩);
+
+% 表格操作
+T.排名 = [3; 1; 4; 2];
+fprintf('添加排名列后:\n'); disp(T);
+
+% 筛选
+high_scores = T(T.成绩 > 85, :);
+fprintf('成绩>85的学生:\n'); disp(high_scores);
+
+%% 9. categorical 类型
+disp('--- categorical 分类 ---');
+
+colors = categorical({'红','蓝','红','绿','蓝','红','绿'});
+fprintf('类别: %s\n', strjoin(string(categories(colors)), ', '));
+fprintf('各类数量: ');
+countcats(colors);
+
+% 有序分类
+sizes = categorical({'S','M','L','XL','M','L','S','XL'}, ...
+    {'S','M','L','XL'}, 'Ordinal', true);
+fprintf('有序类别: %s\n', strjoin(string(categories(sizes)), ' < '));
+fprintf('L > M: %d\n', sizes(3) > sizes(2));
+
+%% 10. 数据类型可视化总结
+figure('Name', 'MATLAB数据类型总览', 'Position', [100 100 600 400]);
+text(0.1, 0.95, 'MATLAB 常见数据类型', 'FontSize', 14, 'FontWeight', 'bold');
+
+types_text = {
+    '数值类型:'; '  double (默认), single, int8~int64, uint8~uint64';
+    ''; '字符与字符串:'; '  char (''单引号''), string ("双引号", R2016b+)';
+    ''; '逻辑类型:'; '  logical (true/false)';
+    ''; '日期时间:'; '  datetime, duration, calendarDuration';
+    ''; '容器类型:'; '  cell (元胞), struct (结构体), table (表格)';
+    ''; '分类类型:'; '  categorical (有序/无序)';
+};
+y_pos = 0.85;
+for i = 1:length(types_text)
+    text(0.1, y_pos, types_text{i}, 'FontSize', 10, ...
+        'FontWeight', {'normal','bold'}(contains(types_text{i},':')+1));
+    y_pos = y_pos - 0.06;
+end
+axis off;
+title('MATLAB 数据类型体系');
+
+%% === 总结 ===
+fprintf('\n=== 变量与类型总结 ===\n');
+fprintf('1. 数值: double/single 浮点, int/uint 整型\n');
+fprintf('2. 文本: char 字符数组, string 字符串标量\n');
+fprintf('3. 日期: datetime + duration 时间运算\n');
+fprintf('4. 表格: table 混合类型数据存储\n');
+fprintf('5. 分类: categorical 有限类别集合\n');
+fprintf('6. 转换: num2str, str2double, int32, single 等\n');
