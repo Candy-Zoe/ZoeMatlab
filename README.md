@@ -159,6 +159,96 @@
 
 > 需要 Deep Learning Toolbox
 
+### 17_Simulink（Simulink基础）
+| 文件 | 内容 |
+|------|------|
+| `01_Simulink基础.m` | Simulink概览、程序化建模、模块参数、求解器选择 |
+| `02_子系统与封装.m` | 子系统创建、封装、条件子系统、模型引用 |
+| `03_仿真技术.m` | 多域仿真、MATLAB Function模块、S-Function、代码生成 |
+| `04_控制系统仿真.m` | PID控制仿真、状态空间模型、参数扫描、Stateflow |
+
+> 需要 Simulink
+
+### 18_AudioProcessing（音频处理）
+| 文件 | 内容 |
+|------|------|
+| `01_音频读取与生成.m` | 数字音频基础、音调合成、ADSR包络、audioread/write |
+| `02_FFT音频分析.m` | FFT基础、频率分辨率、谐波分析、音高检测 |
+| `03_音频滤波.m` | 低/高/带通滤波器、陷波器、均衡器概念 |
+| `04_语音处理.m` | 语音特征、频谱图、MFCC、语音活动检测 |
+
+> 需要 Signal Processing Toolbox
+
+### 19_ComputerVision（计算机视觉）
+| 文件 | 内容 |
+|------|------|
+| `01_图像特征检测.m` | Harris角点、SURF特征、特征匹配、Hough直线 |
+| `02_目标检测与跟踪.m` | 模板匹配、帧差法、光流法、背景减除 |
+| `03_相机标定与三维.m` | 相机模型、畸变可视化、标定、立体视觉 |
+| `04_计算机视觉应用.m` | 图像拼接、目标检测综述、OCR |
+
+> 需要 Computer Vision Toolbox
+
+### 20_Robotics（机器人学）
+| 文件 | 内容 |
+|------|------|
+| `01_运动学基础.m` | 齐次变换、DH参数、工作空间可视化 |
+| `02_路径规划.m` | A*算法、RRT算法、路径平滑 |
+| `03_动力学与控制.m` | 拉格朗日动力学、ODE仿真、PID跟踪控制 |
+| `04_机器人应用.m` | ROS概念、差速驱动、传感器、应用 |
+
+> 需要 Robotics System Toolbox（部分功能基础MATLAB可用）
+
+### 21_FinancialEngineering（金融工程）
+| 文件 | 内容 |
+|------|------|
+| `01_金融数据基础.m` | 股票模拟、K线图、风险指标（VaR、夏普、回撤）|
+| `02_投资组合优化.m` | 马科维茨均值-方差优化、有效前沿、资产配置 |
+| `03_BlackScholes.m` | BS公式、期权价格曲面、Greeks可视化 |
+| `04_蒙特卡洛模拟.m` | 蒙特卡洛定价、收敛分析、方差减少 |
+
+> 需要 Financial Toolbox（部分功能基础MATLAB可用）
+
+### 22_Bioinformatics（生物信息学）
+| 文件 | 内容 |
+|------|------|
+| `01_序列分析基础.m` | DNA序列分析、Needleman-Wunsch比对、生物网络 |
+| `02_基因表达分析.m` | 微阵列数据、差异表达、火山图、聚类、通路富集 |
+| `03_系统发育树.m` | 多序列比对、UPGMA建树、分子钟、Bootstrap |
+| `04_生物信息学应用.m` | 基因组特征、蛋白质结构、药物对接、NGS分析 |
+
+> 需要 Bioinformatics Toolbox（部分功能基础MATLAB可用）
+
+### 23_SystemIdentification（系统辨识）
+| 文件 | 内容 |
+|------|------|
+| `01_系统辨识基础.m` | iddata对象、信号分析、ARX模型、最小二乘辨识 |
+| `02_传递函数估计.m` | 频域方法、H1估计、阶数选择、AIC准则 |
+| `03_状态空间辨识.m` | N4SID子空间辨识、Hankel矩阵SVD、模型验证 |
+| `04_系统辨识应用.m` | 非线性NARX、闭环辨识、RLS在线辨识、MPC概念 |
+
+> 需要 System Identification Toolbox
+
+### 24_AutonomousDriving（自动驾驶）
+| 文件 | 内容 |
+|------|------|
+| `01_传感器与环境感知.m` | LiDAR点云、DBSCAN聚类、目标检测、车道线检测 |
+| `02_车辆动力学.m` | 自行车模型、线性二自由度、稳定性分析、纯追踪 |
+| `03_传感器融合.m` | 卡尔曼滤波、EKF、IMU/GPS融合 |
+| `04_决策与规划.m` | A*路径规划、ACC自适应巡航、安全距离模型 |
+
+> 需要 Automated Driving Toolbox（部分功能基础MATLAB可用）
+
+### 25_FEA（有限元分析）
+| 文件 | 内容 |
+|------|------|
+| `01_有限元基础.m` | 杆单元、刚度矩阵组装、边界条件、桁架分析 |
+| `02_热传导分析.m` | 稳态/瞬态热传导、2D三角元、温度场可视化 |
+| `03_结构力学.m` | 欧拉梁单元、模态分析、平面应力、带孔板 |
+| `04_PDE工具箱.m` | PDE工具箱、网格收敛性、自适应细化、多物理场 |
+
+> 需要 PDE Toolbox（部分功能基础MATLAB可用）
+
 ---
 
 ## 使用方法
@@ -183,5 +273,14 @@
 - 模块 14: Econometrics Toolbox
 - 模块 15: Communications Toolbox
 - 模块 16: Deep Learning Toolbox
+- 模块 17: Simulink
+- 模块 18: Signal Processing Toolbox
+- 模块 19: Computer Vision Toolbox
+- 模块 20: Robotics System Toolbox
+- 模块 21: Financial Toolbox
+- 模块 22: Bioinformatics Toolbox
+- 模块 23: System Identification Toolbox
+- 模块 24: Automated Driving Toolbox
+- 模块 25: PDE Toolbox
 
 > 缺少工具箱时，脚本会使用 try-catch 提供简化版本的演示。
